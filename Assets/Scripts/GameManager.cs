@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        saveFilePath = Application.persistentDataPath + "/userdata.json";
+        saveFilePath = Application.persistentDataPath + $"/{userData.ID}.json";
 
         LoadUserData();
         UpdateUI();
@@ -78,10 +78,6 @@ public class GameManager : MonoBehaviour
         {
             string json = File.ReadAllText(saveFilePath);
             userData = JsonUtility.FromJson<UserData>(json);
-        }
-        else
-        {
-            userData = new UserData("최한빈", 50000, 100000);
         }
     }
 }
