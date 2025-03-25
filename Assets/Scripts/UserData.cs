@@ -14,7 +14,7 @@ public class UserData
     public UserData(string name, int cash, int balance)
     {
         this.name = name;
-        cashValue = cash;
-        balanceValue = balance;
+        this.cashValue = cash;
+        this.balanceValue = balance;
     }
 }

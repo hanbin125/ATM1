@@ -1,26 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Linq;
+﻿using System.IO;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public UserData userData;
-    public TextMeshProUGUI nameText;
-    public TextMeshProUGUI cashValueText;
-    public TextMeshProUGUI balanceValueText;
-    public Button depositBtn10000;
-    public Button depositBtn30000;
-    public Button depositBtn50000;
-    public Button withdrawBtn10000;
-    public Button withdrawBtn30000;
-    public Button withdrawBtn50000;
-    public Button cancelBtn;
 
-    private List<int> moneyAmounts = new List<int> { 10000, 30000, 50000, 100000, 200000 };
+    [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI cashValueText;
+    [SerializeField] private TextMeshProUGUI balanceValueText;
+
+    private string saveFilePath;
+
     private void Awake()
     {
         if (instance == null)
@@ -32,13 +24,39 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        nameText = GameObject.Find("Name").GetComponent<TextMeshProUGUI>();
-        cashValueText = GameObject.Find("cashValue").GetComponent<TextMeshProUGUI>();
-        balanceValueText = GameObject.Find("balanceValue").GetComponent<TextMeshProUGUI>();
-        userData = new UserData("최한빈", 50000, 100000);
-        UpdateUI();
 
-        depositBtn10000.onClick.AddListener(Deposit);
+        saveFilePath = Application.persistentDataPath + "/userdata.json";
+
+        LoadUserData();
+        UpdateUI();
+    }
+
+    private void Update()
+    {
+        SaveUserData();
+    }
+
+    public void AddDeposit(int amount)
+    {
+        if (userData.cashValue < amount)
+        {
+            Debug.Log("잔액이 부족합니다");
+            return;
+        }
+        userData.cashValue -= amount;
+        userData.balanceValue += amount;
+        UpdateUI();
+    }
+    public void AddWithdraw(int amount)
+    {
+        if (userData.balanceValue < amount)
+        {
+            Debug.Log("잔액이 부족합니다");
+            return;
+        }
+        userData.cashValue += amount;
+        userData.balanceValue -= amount;
+        UpdateUI();
     }
 
     public void UpdateUI()
@@ -48,17 +66,22 @@ public class GameManager : MonoBehaviour
         balanceValueText.text = "Balance " + userData.balanceValue.ToString("N0");
     }
 
-    public void Deposit()
+    void SaveUserData()
     {
-        userData.cashValue -= 10000;
-        userData.balanceValue += 10000;
-        UpdateUI();
+        string json = JsonUtility.ToJson(userData);
+        File.WriteAllText(saveFilePath, json);
     }
 
-    public void Withdraw()
+    void LoadUserData()
     {
-        userData.cashValue += 10000;
-        userData.balanceValue -= 10000;
-        UpdateUI();
+        if (File.Exists(saveFilePath))
+        {
+            string json = File.ReadAllText(saveFilePath);
+            userData = JsonUtility.FromJson<UserData>(json);
+        }
+        else
+        {
+            userData = new UserData("최한빈", 50000, 100000);
+        }
     }
 }
