@@ -104,7 +104,6 @@ public class PopupBank : MonoBehaviour
         }
         InputField2.text = "";
     }
-
     
     public void AddCustomRemit()
     {
