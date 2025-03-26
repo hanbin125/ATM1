@@ -12,7 +12,8 @@ public class SignUp : MonoBehaviour
     [SerializeField] private TMP_InputField nameText;
     [SerializeField] private TMP_InputField PSText;
     [SerializeField] private TMP_InputField PSCFText;
-
+    [SerializeField] private TMP_InputField LoginID;
+    [SerializeField] private TMP_InputField LoginPS;
     public void SignUpBtn()
     {
         if(string.IsNullOrEmpty(IDText.text)|| string.IsNullOrEmpty(nameText.text)|| string.IsNullOrEmpty(PSText.text)|| string.IsNullOrEmpty(PSCFText.text))
@@ -23,8 +24,8 @@ public class SignUp : MonoBehaviour
 
         if (PSText.text == PSCFText.text)
         {
-            UserData userData = new UserData(IDText.text, nameText.text, PSText.text, 50000,100000);
-            GameManager.instance.userData = userData;
+            UserData newUser = new UserData(IDText.text, nameText.text, PSText.text, 50000,100000);
+            GameManager.instance.InitializeUser(newUser);
             signUp.SetActive(false);
             login.SetActive(true);
         }
@@ -36,15 +37,18 @@ public class SignUp : MonoBehaviour
 
     public void LoginBtn()
     {
-        if (string.IsNullOrEmpty(IDText.text) || string.IsNullOrEmpty(PSText.text))
+        if (string.IsNullOrEmpty(LoginID.text) || string.IsNullOrEmpty(LoginPS.text))
         {
             Debug.Log("정보를 입력해주세요~");
             return;
         }
-        if (GameManager.instance.userData.ID == IDText.text && GameManager.instance.userData.PS == PSText.text)
+
+        GameManager.instance.userData = GameManager.instance.LoadUserData(LoginID.text);
+        if (GameManager.instance.userData != null && GameManager.instance.userData.ID == LoginID.text && GameManager.instance.userData.PS == LoginPS.text)
         {
             popupBank.SetActive(true);
             login.SetActive(false);
+            GameManager.instance.UpdateUI();
         }
         else
         {

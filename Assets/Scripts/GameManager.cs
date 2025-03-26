@@ -24,16 +24,13 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        saveFilePath = Application.persistentDataPath + $"/{userData.ID}.json";
-
-        LoadUserData();
-        UpdateUI();
     }
 
-    private void Update()
+    public void InitializeUser(UserData newUser)
     {
-        SaveUserData();
+        userData = newUser;
+        saveFilePath = Application.persistentDataPath + $"/{userData.ID}.json";
+        SaveUserData(userData);
     }
 
     public void AddDeposit(int amount)
@@ -46,6 +43,7 @@ public class GameManager : MonoBehaviour
         userData.cashValue -= amount;
         userData.balanceValue += amount;
         UpdateUI();
+        SaveUserData(userData);
     }
     public void AddWithdraw(int amount)
     {
@@ -57,8 +55,22 @@ public class GameManager : MonoBehaviour
         userData.cashValue += amount;
         userData.balanceValue -= amount;
         UpdateUI();
+        SaveUserData(userData);
     }
+    public void AddRemit(int amount, UserData targetData)
+    {
+        if (userData.balanceValue < amount)
+        {
+            Debug.Log("잔액이 부족합니다");
+            return;
+        }
 
+        targetData.balanceValue += amount;
+        userData.balanceValue -= amount;
+        UpdateUI();
+        SaveUserData(userData);
+        SaveUserData(targetData);
+    }
     public void UpdateUI()
     {
         nameText.text = userData.name;
@@ -66,18 +78,29 @@ public class GameManager : MonoBehaviour
         balanceValueText.text = "Balance " + userData.balanceValue.ToString("N0");
     }
 
-    void SaveUserData()
+    private string GeneratePath(string id)
     {
-        string json = JsonUtility.ToJson(userData);
-        File.WriteAllText(saveFilePath, json);
+        return Application.persistentDataPath + $"/{id}.json";
     }
 
-    void LoadUserData()
+    public void SaveUserData(UserData targetData)
     {
+        string json = JsonUtility.ToJson(targetData);
+        File.WriteAllText(GeneratePath(targetData.ID), json);
+    }
+
+    public UserData LoadUserData(string userId)
+    {
+        string saveFilePath = GeneratePath(userId);
         if (File.Exists(saveFilePath))
         {
             string json = File.ReadAllText(saveFilePath);
-            userData = JsonUtility.FromJson<UserData>(json);
+            return JsonUtility.FromJson<UserData>(json);
+        }
+        else
+        {
+            Debug.Log("저장된 데이터가 없습니다.");
+            return null;
         }
     }
 }
