@@ -6,6 +6,10 @@
 
 ---
 
+
+https://github.com/user-attachments/assets/779fdb9c-7e06-4ee7-9d9a-b6bc5d9d642a
+
+
 ## 🎮 **기능 설명**
 
 ### 🔹 **1. 회원가입 (Sign Up)**
